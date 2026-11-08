@@ -1,0 +1,15 @@
+[package]
+name = "platform-embedded"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+anyhow.workspace = true
+thiserror.workspace = true
+tracing.workspace = true
+carplay-airplay.workspace = true
+carplay-transport.workspace = true
+
+[target.'cfg(target_os = "linux")'.dependencies]
+libc = "0.2"

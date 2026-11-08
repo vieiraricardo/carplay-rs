@@ -1,0 +1,13 @@
+[package]
+name = "carplay-iap2"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+thiserror.workspace = true
+tracing.workspace = true
+bytes.workspace = true
+byteorder.workspace = true
+hex.workspace = true
+carplay-mfi.workspace = true

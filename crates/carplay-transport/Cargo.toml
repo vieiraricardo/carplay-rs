@@ -1,0 +1,19 @@
+[package]
+name = "carplay-transport"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+anyhow.workspace = true
+thiserror.workspace = true
+tracing.workspace = true
+bytes.workspace = true
+byteorder.workspace = true
+rusb = "0.9"
+plist = "1.7"
+rustls = { version = "0.23", default-features = false, features = ["ring", "std", "tls12"] }
+rustls-pemfile = "2.2"
+libc = "0.2"
+carplay-iap2.workspace = true
+carplay-mfi.workspace = true

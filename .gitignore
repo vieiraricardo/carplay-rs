@@ -1,0 +1,30 @@
+# Rust build artifacts
+/target/
+**/*.rs.bk
+
+# Runtime state & local pairings
+/.carplay-rs-state/
+
+# MFi credentials & certificates (keep out of version control)
+/offline-mfi/
+*.p7b
+*.pk8
+*.pem
+*.key
+*.cer
+*.crt
+*.der
+
+# Media & recordings (demo video allowed)
+*.mp4
+!carplay-rs.mp4
+*.mov
+*.mkv
+
+# Android APK packages
+*.apk
+
+# macOS / OS metadata
+.DS_Store
+._*
+Thumbs.db

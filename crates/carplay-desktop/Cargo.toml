@@ -1,0 +1,32 @@
+[package]
+name = "carplay-desktop"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[[bin]]
+name = "carplay-desktop"
+path = "src/main.rs"
+
+[dependencies]
+anyhow.workspace = true
+tracing.workspace = true
+tracing-subscriber.workspace = true
+hex.workspace = true
+indexmap.workspace = true
+
+minifb = "0.27"
+openh264 = "0.6"
+openh264-sys2 = "0.6"
+cpal = "0.15"
+clap = { version = "4.5", features = ["derive"] }
+
+carplay-iap2.workspace = true
+carplay-mfi.workspace = true
+carplay-airplay.workspace = true
+carplay-transport.workspace = true
+platform-embedded.workspace = true
+
+[target.'cfg(target_os = "macos")'.dependencies]
+videotoolbox = { version = "0.21.2", features = ["decompression"] }
+apple-cf = "0.11"
