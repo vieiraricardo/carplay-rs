@@ -36,7 +36,64 @@ A pure **Rust** implementation of the Apple CarPlay protocol stack (wired via US
 | `crates/platform-embedded` | Embedded Linux backend: `EvdevMultitouchState` (`/dev/input/event*`), `LinuxFbdevSink` (`/dev/fb0` XRGB8888 and RGB565), fast `YUV420 -> XRGB8888 -> RGB565` conversion, and Buildroot fast-boot init scripts.                                                                                                                                                                                                                                                                 |
 | `crates/carplay-desktop`   | Interactive desktop application for macOS and Linux + `--simulate-iphone`, `--usb-probe`, and `--self-test` modes.                                                                                                                                                                                                                                                                                                                                                             |
 
-## Running and Testing on macOS
+## Prerequisites
+
+Make sure you have a modern Rust toolchain installed (Rust 1.75+ / 2021 edition):
+
+```bash
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+```
+
+### macOS
+```bash
+# Install Xcode Command Line Tools (for Apple frameworks & C compiler)
+xcode-select --install
+
+# Install libusb and pkg-config via Homebrew
+brew install pkg-config libusb
+```
+
+### Linux (Ubuntu / Debian / Raspberry Pi OS / Armbian)
+```bash
+sudo apt update && sudo apt install -y \
+  build-essential \
+  pkg-config \
+  libusb-1.0-0-dev \
+  libasound2-dev \
+  libx11-dev
+```
+
+## Building from Source
+
+```bash
+# Clone the repository
+git clone https://github.com/vieiraricardo/carplay-rs.git
+cd carplay-rs
+
+# Build the entire workspace in release mode
+cargo build --release
+
+# Build only the desktop receiver application
+cargo build --release -p carplay-desktop
+
+# Run all workspace unit & integration tests
+cargo test --workspace
+```
+
+### Cross-Compiling for Embedded Linux (ARM64 / ARMv7 SBCs)
+
+For target single-board computers (Radxa Zero 3W, Orange Pi Zero 3, MangoPi, Raspberry Pi 4/5):
+
+```bash
+# Add ARM64 Linux target
+rustup target add aarch64-unknown-linux-gnu
+
+# Build using cross (recommended)
+cargo install cross --git https://github.com/cross-rs/cross
+cross build --release -p platform-embedded --target aarch64-unknown-linux-gnu
+```
+
+## Quick Start & Testing (macOS / Linux)
 
 ```bash
 # 1. Run all workspace unit tests
