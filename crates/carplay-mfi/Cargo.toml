@@ -15,7 +15,6 @@ rand.workspace = true
 sha2.workspace = true
 p256.workspace = true
 ureq = { version = "2.12", features = ["json"] }
-zip = { version = "2.2", default-features = false, features = ["deflate"] }
 
 [target.'cfg(target_os = "linux")'.dependencies]
 libc = "0.2"

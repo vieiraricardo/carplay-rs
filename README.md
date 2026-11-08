@@ -9,7 +9,7 @@ A pure **Rust** implementation of the Apple CarPlay protocol stack (wired via US
 > **Status & Required Credentials**:
 >
 > - **Wi-Fi / Wireless CarPlay**: The wireless protocol stack (5 GHz AP configuration, mDNS service discovery, and BlueZ Bluetooth RFCOMM iAP2 bootstrap) is implemented, but **has not yet been validated end-to-end over Wi-Fi with a real device**.
-> - **MFi Authentication Certificates**: To connect and authenticate with a physical iPhone, valid Apple MFi authentication certificates and private keys (`identity.pk8` and `certificate.p7b`, or a genuine hardware MFi coprocessor chip) are **strictly required and are NOT included in this repository**. You must provide your own certificates via `--mfi-local-dir <dir>`, `--mfi-apk <path>`, or `--mfi-server-url <url>`.
+> - **MFi Authentication Certificates**: To connect and authenticate with a physical iPhone, valid Apple MFi authentication certificates and private keys (`identity.pk8` and `certificate.p7b`, or a genuine hardware MFi coprocessor chip) are **strictly required and are NOT included in this repository**. You must provide your own certificates via `--mfi-local-dir <dir>` (or `./offline-mfi`), hardware I2C/CH341 chip, or `--mfi-server-url <url>`.
 
 ## Demo
 

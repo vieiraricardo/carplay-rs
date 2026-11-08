@@ -3,7 +3,7 @@
 //! Features:
 //! - Starts a dual-stack IPv6+IPv4 `AirPlayServer` (`[::]:7000`) for USB CDC-NCM (`fe80::...`) and Wi-Fi
 //! - Automatically orchestrates Wired USB CarPlay via `/var/run/usbmuxd` -> `lockdownd` (TLS) -> `com.apple.carkit.service` -> iAP2
-//! - Auto-detects `DiPlay-*.apk` (`--mfi-apk`), CH341 USB-I2C MFi chips (`0x1A86:0x5512`), `./offline-mfi`, or `--mfi-server-url`
+//! - Auto-detects CH341 USB-I2C MFi chips (`0x1A86:0x5512`), `./offline-mfi` (`--mfi-local-dir`), or `--mfi-server-url`
 //! - Decodes incoming H.264 Annex-B video via `openh264` (`Flush::NoFlush` low-latency live mode) and plays LPCM audio via `cpal`
 //! - Maps mouse click/drag -> CarPlay Multitouch HID (`0x2a2a2a2a`), scroll/keys -> Rotary Knob, Home, Back, Siri, Night Mode
 
@@ -87,10 +87,6 @@ struct Cli {
     /// Optional directory containing `identity.pk8` and `certificate.p7b` for local P-256 MFi.
     #[arg(long)]
     mfi_local_dir: Option<PathBuf>,
-
-    /// Optional path to a standalone/release DiPlay `.apk` containing `assets/offline-mfi/{identity.pk8,certificate.p7b}`.
-    #[arg(long)]
-    mfi_apk: Option<PathBuf>,
 
     /// Disable Bonjour/mDNS advertisement.
     #[arg(long)]
@@ -684,14 +680,6 @@ fn start_cpal_output(ring: Arc<Mutex<VecDeque<(f32, f32)>>>) -> Option<cpal::Str
 }
 
 fn select_mfi_provider(cli: &Cli) -> anyhow::Result<(Arc<dyn MfiAuthenticator>, String)> {
-    if let Some(apk_path) = &cli.mfi_apk {
-        tracing::info!("Loading Local P-256 MFi identity from APK {apk_path:?}");
-        return Ok((
-            Arc::new(LocalP256MfiClient::load_from_apk(apk_path)?),
-            format!("APK DIPLAY ({})", apk_path.display()),
-        ));
-    }
-
     let remote_url = cli
         .mfi_server_url
         .clone()
@@ -699,7 +687,7 @@ fn select_mfi_provider(cli: &Cli) -> anyhow::Result<(Arc<dyn MfiAuthenticator>, 
     if let Some(url) = remote_url {
         anyhow::ensure!(
             !url.contains("seu-servidor"),
-            "A URL '{url}' era apenas um exemplo ilustrativo! Se voce tem o APK oficial do DiPlay, use: --mfi-apk /caminho/para/diplay.apk"
+            "A URL '{url}' era apenas um exemplo ilustrativo! Para chaves locais, use: --mfi-local-dir /caminho/para/pasta"
         );
         tracing::info!("Using Remote MFi signing server: {url}");
         return Ok((
@@ -735,30 +723,17 @@ fn select_mfi_provider(cli: &Cli) -> anyhow::Result<(Arc<dyn MfiAuthenticator>, 
         ));
     }
 
-    // Auto-detect any `*.apk` dropped into the current working directory that embeds `assets/offline-mfi/`
-    if let Ok(entries) = std::fs::read_dir(".") {
-        for entry in entries.flatten() {
-            let p = entry.path();
-            if p.extension().and_then(|e| e.to_str()) == Some("apk") {
-                if let Ok(client) = LocalP256MfiClient::load_from_apk(&p) {
-                    tracing::info!("Auto-detected MFi identity inside APK {p:?}!");
-                    return Ok((Arc::new(client), format!("APK DIPLAY ({})", p.display())));
-                }
-            }
-        }
-    }
-
     if let Some((ch341_mfi, addr)) = try_open_ch341_mfi() {
         tracing::info!("Detected physical Apple MFi coprocessor on CH341 USB-I2C at 0x{addr:02X}!");
         return Ok((ch341_mfi, format!("CHIP MFI HARDWARE CH341 (0x{addr:02X})")));
     }
 
     tracing::info!(
-        "Using ephemeral Local P-256 MFi authenticator (works with simulator; real iPhone requires --mfi-apk, --mfi-local-dir, or CH341 chip)"
+        "Using ephemeral Local P-256 MFi authenticator (works with simulator; real iPhone requires --mfi-local-dir or CH341 chip)"
     );
     Ok((
         Arc::new(LocalP256MfiClient::ephemeral_for_testing()),
-        "CHAVE DE TESTE EFEMERA (USE --mfi-apk <diplay.apk> OU CHIP CH341)".to_string(),
+        "CHAVE DE TESTE EFEMERA (USE --mfi-local-dir <dir> OU CHIP CH341)".to_string(),
     ))
 }
 
@@ -916,7 +891,7 @@ fn spawn_usb_carplay_worker(
                             "USB: LOCKDOWN + CARKIT + IAP2 OK! FALTOU CREDENCIAL APPLE MFI (0xAA04)"
                                 .to_string();
                         st.detail =
-                            "PASSE --mfi-apk <diplay.apk>, --mfi-local-dir OU CHIP CH341 (TECLA [U] REPETE)"
+                            "PASSE --mfi-local-dir <dir> OU CHIP CH341 (TECLA [U] REPETE)"
                                 .to_string();
                         st.color = 0xFF9F0A;
                     }

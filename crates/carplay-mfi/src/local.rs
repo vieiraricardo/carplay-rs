@@ -1,7 +1,6 @@
 //! Local software P-256 ECDSA MFi v3 / BAA authenticator (matching `LocalMfiAuthenticationClient.kt`).
 
 use std::fs;
-use std::io::Read;
 use std::path::Path;
 
 use p256::ecdsa::signature::hazmat::PrehashSigner;
@@ -55,49 +54,6 @@ impl LocalP256MfiClient {
             .map_err(|e| MfiError::InvalidKey(format!("read certificate: {e}")))?;
         let inter = fs::read(dir.join("intermediate.der")).ok();
         Self::from_pkcs8_der(&pk8, cert, inter)
-    }
-
-    /// Loads `assets/offline-mfi/identity.pk8` and `assets/offline-mfi/certificate.p7b`
-    /// directly from a standalone `DiPlay` Android `.apk` package (ZIP archive).
-    pub fn load_from_apk(apk_path: impl AsRef<Path>) -> Result<Self, MfiError> {
-        let path = apk_path.as_ref();
-        let file = fs::File::open(path)
-            .map_err(|e| MfiError::InvalidKey(format!("open APK {path:?}: {e}")))?;
-        let mut archive = zip::ZipArchive::new(file)
-            .map_err(|e| MfiError::InvalidKey(format!("parse APK zip {path:?}: {e}")))?;
-
-        let mut pk8 = Vec::new();
-        archive
-            .by_name("assets/offline-mfi/identity.pk8")
-            .map_err(|_| {
-                MfiError::InvalidKey(
-                    "APK nao contem 'assets/offline-mfi/identity.pk8' (use o APK release/standalone do DiPlay)"
-                        .into(),
-                )
-            })?
-            .read_to_end(&mut pk8)
-            .map_err(|e| MfiError::InvalidKey(format!("read APK identity.pk8: {e}")))?;
-
-        let mut cert = Vec::new();
-        archive
-            .by_name("assets/offline-mfi/certificate.p7b")
-            .map_err(|_| {
-                MfiError::InvalidKey(
-                    "APK nao contem 'assets/offline-mfi/certificate.p7b'".into(),
-                )
-            })?
-            .read_to_end(&mut cert)
-            .map_err(|e| MfiError::InvalidKey(format!("read APK certificate.p7b: {e}")))?;
-
-        let mut inter_opt = None;
-        if let Ok(mut inter_entry) = archive.by_name("assets/offline-mfi/intermediate.der") {
-            let mut buf = Vec::new();
-            if inter_entry.read_to_end(&mut buf).is_ok() && !buf.is_empty() {
-                inter_opt = Some(buf);
-            }
-        }
-
-        Self::from_pkcs8_der(&pk8, cert, inter_opt)
     }
 
     /// Generates an ephemeral P-256 identity with a synthetic DER certificate blob for local desktop simulation & tests.
