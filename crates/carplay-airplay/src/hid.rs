@@ -1,7 +1,6 @@
 //! CarPlay HID descriptors and binary report encoders (Multitouch 2-finger, Rotary Knob, Media, Telephony).
 
 use crate::bplist::PlistValue;
-use crate::plist_dict;
 
 pub const TOUCH_HID_UID: u32 = 0x2a2a2a2a;
 pub const KNOB_HID_UID: u32 = 0x2a2a2a2b;

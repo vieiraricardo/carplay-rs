@@ -22,7 +22,6 @@ use crate::hid::{
 use crate::info_plist::{build_info_plist, AirPlayConfig, ALT_DISPLAY_UUID};
 use crate::ntp_clock::NtpClock;
 use crate::pairing::{ControlCipher, MfiSapAuthSetup, PairSetup, PairVerify};
-use crate::plist_dict;
 use crate::rtsp::{self, RtspRequest, RtspResponse};
 use crate::streams::{
     audio_format_from_bits, AudioFormat, AudioStream, AudioStreamId, IapTunnel, ScreenStream,

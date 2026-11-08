@@ -4,7 +4,6 @@ use indexmap::IndexMap;
 
 use crate::bplist::PlistValue;
 use crate::hid::{knob_hid_device, media_hid_device, telephony_hid_device, touch_hid_device};
-use crate::plist_dict;
 
 pub const MAIN_DISPLAY_UUID: &str = "b7e6c5a0-1111-4000-8000-000000000001";
 pub const ALT_DISPLAY_UUID: &str = "b7e6c5a0-2222-4000-8000-000000000002";
